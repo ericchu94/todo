@@ -6,6 +6,13 @@ A command line todo app
 $ todo add Buy groceries today @personal
 1 Buy groceries today p3 @personal
 
+$ todo show 1
+task: Buy groceries
+due: today
+priority: 3
+tags:
+  - personal
+
 $ todo add Buy eggs today @personal parent:1
 1 Buy groceries today p3 @personal
   2 Buy eggs today p3 @personal
