@@ -1,9 +1,32 @@
 #!/usr/bin/env python
 import argparse
 import os
+import yaml
 
 
 TODOTXT = os.path.expanduser('~/todo.txt')
+TODO_STATE = os.path.expanduser('~/.todo.state')
+
+
+class Task:
+    def __init__(self, raw):
+        raw = raw.strip()
+        self.raw = raw
+        self.task = raw
+
+
+    def __repr__(self):
+        d = self.__dict__.copy()
+        del d['raw']
+        return yaml.dump(d, default_flow_style=False).strip()
+
+
+    def __str__(self):
+        return self.raw
+
+
+    def __lt__(self, other):
+        return self.task < other.task
 
 
 def add_task(task):
@@ -17,13 +40,31 @@ def add_func(args):
 
 
 def list_tasks():
-    with open(TODOTXT, mode='r', encoding='utf-8') as f:
-        for i, task in enumerate(f):
-            print(i, task.strip())
+    with open(TODOTXT, mode='r', encoding='utf-8') as f, \
+         open(TODO_STATE, mode='w', encoding='utf-8') as state:
+        tasks = sorted((Task(task) for task in f))
+        id = 0
+        for i, task in enumerate(tasks):
+            if True:
+                print(id, task)
+                print(i, file=state)
+                id += 1
 
 
 def list_func(args):
     list_tasks()
+
+
+def show_task(id):
+    with open(TODO_STATE, mode='r', encoding='utf-8') as state:
+        i = int(state.readlines()[id])
+    with open(TODOTXT, mode='r', encoding='utf-8') as f:
+        task = Task(f.readlines()[i])
+        print(repr(task))
+
+
+def show_func(args):
+    show_task(args.id)
 
 
 def parse_args():
@@ -36,6 +77,11 @@ def parse_args():
 
     parser_list = subparsers.add_parser('list', aliases=['l'])
     parser_list.set_defaults(func=list_func)
+
+    parser_show = subparsers.add_parser('show', aliases=['s'])
+    parser_show.add_argument('id', type=int)
+    parser_show.set_defaults(func=show_func)
+
     return parser.parse_args()
 
 
