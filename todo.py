@@ -19,21 +19,20 @@ class Task:
         self.priority = self._extract_priority()
 
 
-    def _extract_tags(self):
-        pattern = r'(?<!\S)@\S+(?!\S)'
-        tags = [tag[1:] for tag in re.findall(pattern, self.task, flags=re.IGNORECASE)]
+    def _extract(self, prefix, remainder):
+        pattern = r'(?<!\S){}{}+(?!\S)'.format(prefix, remainder)
+        matches = [match[1:] for match in re.findall(pattern, self.task, flags=re.IGNORECASE)]
         self.task = re.sub(pattern, '', self.task, flags=re.IGNORECASE).strip()
-        return tags
+        return matches
+
+
+    def _extract_tags(self):
+        return self._extract('@', '\S')
 
 
     def _extract_priority(self):
-        pattern = r'(?<!\S)p\d+(?!\S)'
-        priorities = [p[1:] for p in re.findall(pattern, self.task, flags=re.IGNORECASE)]
-        self.task = re.sub(pattern, '', self.task, flags=re.IGNORECASE).strip()
-        if len(priorities) > 1:
-            print('Multiple priorities in task: {}'.format(self.raw), file=sys.stderr)
         try:
-            return priorities[0]
+            return self._extract('p', '\d')[0]
         except IndexError:
             return 3
 
