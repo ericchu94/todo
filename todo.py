@@ -9,17 +9,18 @@ TODO_STATE = os.path.expanduser('~/.todo.state')
 
 
 class Task:
-    def __init__(self, raw):
+    def __init__(self, raw, index=None):
         raw = raw.strip()
         self.raw = raw
+        self.index = index
         self.task = raw
         self.tags = self._extract_tags()
 
 
     def _extract_tags(self):
         pattern = r'(?<!\S)@\S+(?!\S)'
-        tags = [tag[1:] for tag in re.findall(pattern, self.task)]
-        self.task = re.sub(pattern, '', self.task).strip()
+        tags = [tag[1:] for tag in re.findall(pattern, self.task, flags=re.IGNORECASE)]
+        self.task = re.sub(pattern, '', self.task, flags=re.IGNORECASE).strip()
         return tags
 
 
@@ -54,12 +55,12 @@ def add_func(args):
 def list_tasks():
     with open(TODOTXT, mode='r', encoding='utf-8') as f, \
          open(TODO_STATE, mode='w', encoding='utf-8') as state:
-        tasks = sorted((Task(task) for task in f))
+        tasks = sorted((Task(task, index) for index, task in enumerate(f)))
         id = 0
         for i, task in enumerate(tasks):
             if True:
                 print(id, task)
-                print(i, file=state)
+                print(task.index, file=state)
                 id += 1
 
 
