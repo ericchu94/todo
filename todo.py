@@ -2,6 +2,7 @@
 import argparse
 import os
 import re
+import sys
 
 
 TODOTXT = os.path.expanduser('~/todo.txt')
@@ -15,6 +16,7 @@ class Task:
         self.index = index
         self.task = raw
         self.tags = self._extract_tags()
+        self.priority = self._extract_priority()
 
 
     def _extract_tags(self):
@@ -24,6 +26,18 @@ class Task:
         return tags
 
 
+    def _extract_priority(self):
+        pattern = r'(?<!\S)p\d+(?!\S)'
+        priorities = [p[1:] for p in re.findall(pattern, self.task, flags=re.IGNORECASE)]
+        self.task = re.sub(pattern, '', self.task, flags=re.IGNORECASE).strip()
+        if len(priorities) > 1:
+            print('Multiple priorities in task: {}'.format(self.raw), file=sys.stderr)
+        try:
+            return priorities[0]
+        except IndexError:
+            return 3
+
+
     def __repr__(self):
         yaml = []
         yaml.append('task: {}'.format(self.task))
@@ -31,6 +45,7 @@ class Task:
             yaml.append('tags:')
             for tag in self.tags:
                 yaml.append('  - {}'.format(tag))
+        yaml.append('priority: {}'.format(self.priority))
         return '\n'.join(yaml)
 
 
