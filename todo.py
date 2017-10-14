@@ -17,7 +17,7 @@ class Task:
 
 
     def _extract_tags(self):
-        pattern = '@\S+'
+        pattern = r'(?<!\S)@\S+(?!\S)'
         tags = [tag[1:] for tag in re.findall(pattern, self.task)]
         self.task = re.sub(pattern, '', self.task).strip()
         return tags
