@@ -95,6 +95,22 @@ def show_func(args):
     show_task(args.id)
 
 
+def complete_task(id):
+    with open(TODO_STATE, mode='r', encoding='utf-8') as state:
+        i = int(state.readlines()[id])
+    with open(TODOTXT, mode='r+', encoding='utf-8') as f:
+        lines = f.readlines()
+        del lines[i]
+        f.seek(0)
+        f.writelines(lines)
+        f.truncate()
+    list_tasks()
+
+
+def complete_func(args):
+    complete_task(args.id)
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -109,6 +125,10 @@ def parse_args():
     parser_show = subparsers.add_parser('show', aliases=['s'])
     parser_show.add_argument('id', type=int)
     parser_show.set_defaults(func=show_func)
+
+    parser_complete = subparsers.add_parser('complete', aliases=['c'])
+    parser_complete.add_argument('id', type=int)
+    parser_complete.set_defaults(func=complete_func)
 
     return parser.parse_args()
 
