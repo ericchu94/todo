@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import os
-import yaml
+import re
 
 
 TODOTXT = os.path.expanduser('~/todo.txt')
@@ -13,12 +13,24 @@ class Task:
         raw = raw.strip()
         self.raw = raw
         self.task = raw
+        self.tags = self._extract_tags()
+
+
+    def _extract_tags(self):
+        pattern = '@\S+'
+        tags = [tag[1:] for tag in re.findall(pattern, self.task)]
+        self.task = re.sub(pattern, '', self.task).strip()
+        return tags
 
 
     def __repr__(self):
-        d = self.__dict__.copy()
-        del d['raw']
-        return yaml.dump(d, default_flow_style=False).strip()
+        yaml = []
+        yaml.append('task: {}'.format(self.task))
+        if len(self.tags) > 0:
+            yaml.append('tags:')
+            for tag in self.tags:
+                yaml.append('  - {}'.format(tag))
+        return '\n'.join(yaml)
 
 
     def __str__(self):
