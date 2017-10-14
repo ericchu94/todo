@@ -59,6 +59,7 @@ class Task:
 def add_task(task):
     with open(TODOTXT, mode='a', encoding='utf-8') as f:
         print(task, file=f)
+    list_tasks()
 
 
 def add_func(args):
